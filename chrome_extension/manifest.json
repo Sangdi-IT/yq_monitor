@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Virtual Scroll Clicker",
+  "version": "1.0",
+  "description": "自动点击带滚动提示",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
