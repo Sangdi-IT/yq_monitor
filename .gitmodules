@@ -1,0 +1,3 @@
+[submodule "xhs_web_crawler"]
+	path = xhs_web_crawler
+	url = https://github.com/Sangdi-IT/xhs_web_crawler
