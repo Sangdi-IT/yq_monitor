@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>舆情审核平台</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+    .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    .card p { margin: 5px 0; }
+    .card button { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h2>疑似舆情审核列表</h2>
+  <div id="yuqing-list"></div>
+
+  <script>
+    async function loadYuqing() {
+      const res = await fetch('http://127.0.0.1:5000/review');
+      const data = await res.json();
+      const container = document.getElementById('yuqing-list');
+      container.innerHTML = '';
+
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <p><strong>标题：</strong> ${item.title || '（无标题）'}</p>
+          <p><strong>内容：</strong> ${item.content}</p>
+          <p><strong>情感：</strong> ${item.sentiment} (${item.sentiment_score.toFixed(2)})</p>
+          <p><strong>链接：</strong> <a href="${item.url}" target="_blank">跳转查看</a></p>
+          <button onclick="verify('${item.url}', true, this)">✅ 是舆情</button>
+          <button onclick="verify('${item.url}', false, this)">❌ 不是舆情</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function verify(url, isYuqing, btn) {
+      const res = await fetch('http://127.0.0.1:5000/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, is_yuqing: isYuqing })
+      });
+      const result = await res.json();
+      if (result.success) {
+        if (!isYuqing) {
+          btn.parentElement.remove(); // 删除卡片
+        } else {
+          btn.disabled = true;
+          btn.nextElementSibling.disabled = true;
+          btn.textContent = '✅ 已确认';
+        }
+      } else {
+        alert('操作失败，请检查后端服务');
+      }
+    }
+
+    loadYuqing();
+  </script>
+</body>
+</html>
